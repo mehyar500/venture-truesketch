@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueSketch — Your portrait is being drawn</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="TrueSketch">True<span>Sketch</span></a>
+    <nav class="nav">
+      <a href="index.html#faq">FAQ</a>
+      <a href="mailto:team@mehyar.us">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="centered" id="state-paid" hidden>
+    <div class="check">✓</div>
+    <h1>Payment confirmed.</h1>
+    <p class="lede">Your sketch and reading are being created right now — usually ready within a few minutes. This page updates on its own; your private gallery link is also on its way to your email.</p>
+    <div class="spinner" id="gen-spinner"></div>
+    <p class="lede" id="gen-label">Sharpening pencils…</p>
+    <a class="btn btn-primary" id="gallery-btn" href="#" hidden>View my sketch &amp; reading ✦</a>
+  </section>
+
+  <section class="centered" id="state-unknown" hidden>
+    <h1>Looking for your order…</h1>
+    <p class="lede" id="unknown-label">Checking your payment status.</p>
+    <div class="spinner"></div>
+  </section>
+
+  <section id="token-section">
+    <h2>No token in this link?</h2>
+    <p class="lede">Your receipt email carries a private access token. Paste it here to jump to your order status.</p>
+    <form id="token-form" novalidate>
+      <div class="token-form">
+        <input type="text" id="token-input" placeholder="paste your token" autocomplete="off" autocapitalize="off" spellcheck="false">
+        <button type="submit" class="btn btn-primary">Check status</button>
+      </div>
+      <div class="status" id="token-status"></div>
+    </form>
+  </section>
+
+  <section id="state-failed" hidden>
+    <h2>Something went sideways</h2>
+    <p class="lede">Your payment went through, but generation hit a snag. Nothing is lost — email <a href="mailto:team@mehyar.us">team@mehyar.us</a> with your token and we'll re-run it free, or refund you in full.</p>
+    <div class="disclaimer"><strong>Your token:</strong> <span id="failed-token"></span></div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
+    <span><a href="index.html">Home</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var token = TrueSketch.getQueryParam("token");
+  var paidSec = document.getElementById("state-paid");
+  var unknownSec = document.getElementById("state-unknown");
+  var failedSec = document.getElementById("state-failed");
+  var genLabel = document.getElementById("gen-label");
+  var spinner = document.getElementById("gen-spinner");
+  var galleryBtn = document.getElementById("gallery-btn");
+  var tokenForm = document.getElementById("token-form");
+  var tokenInput = document.getElementById("token-input");
+  var tokenStatus = document.getElementById("token-status");
+  var timer = null;
+  var labels = ["Sharpening pencils…", "Studying your story…", "Laying down the first lines…", "Writing your reading…", "Adding the gold accents…"];
+  var labelIdx = 0;
+
+  tokenForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var t = tokenInput.value.trim();
+    if (t.length < 16) {
+      TrueSketch.setStatus(tokenStatus, "That token looks too short — paste the full one from your email.", "err");
+      return;
+    }
+    window.location.search = "?token=" + encodeURIComponent(t);
+  });
+
+  if (!token) {
+    unknownSec.hidden = false;
+    document.getElementById("unknown-label").textContent =
+      "There's no order token in this link yet — it arrives right after checkout. Paste it above if you have it.";
+    return;
+  }
+  unknownSec.hidden = false;
+  poll();
+
+  async function poll() {
+    try {
+      var res = await fetch("/api/order-status?token=" + encodeURIComponent(token), { cache: "no-store" });
+      var data = null;
+      try { data = await res.json(); } catch (e) {}
+      if (res.status === 404 || (data && data.error === "unknown_order")) {
+        unknownSec.hidden = false;
+        paidSec.hidden = true;
+        document.getElementById("unknown-label").textContent =
+          "We couldn't find that order yet — payments can take a minute to register. This page keeps checking.";
+        schedule();
+        return;
+      }
+      if (!res.ok || !data || !data.ok) throw new Error("status_failed");
+      unknownSec.hidden = true;
+      if (data.status === "ready") {
+        paidSec.hidden = false;
+        spinner.hidden = true;
+        genLabel.textContent = "Your sketch and reading are ready ✦";
+        galleryBtn.hidden = false;
+        galleryBtn.href = "gallery.html?token=" + encodeURIComponent(token);
+        stop();
+      } else if (data.status === "failed") {
+        paidSec.hidden = true;
+        failedSec.hidden = false;
+        document.getElementById("failed-token").textContent = token;
+        stop();
+      } else {
+        paidSec.hidden = false;
+        labelIdx = (labelIdx + 1) % labels.length;
+        genLabel.textContent = labels[labelIdx];
+        schedule();
+      }
+    } catch (e) {
+      // transient — keep polling
+      schedule();
+    }
+  }
+
+  function schedule() {
+    stop();
+    timer = setTimeout(poll, 5000);
+  }
+  function stop() {
+    if (timer) { clearTimeout(timer); timer = null; }
+  }
+})();
+</script>
+
+</body>
+</html>

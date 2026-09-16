@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueSketch — Tell us about you</title>
+<meta name="description" content="Your name, your story, an optional selfie — then your sketch and reading are drawn from it. $37 one-time.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="TrueSketch">True<span>Sketch</span></a>
+    <nav class="nav">
+      <a href="teaser.html">Free preview</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Step 1 of 2</p>
+    <h1>Tell us about you.</h1>
+    <p class="lede">This is everything the AI gets to draw and write from — the more <em>you</em> in here, the more personal your sketch and reading feel.</p>
+  </section>
+
+  <section>
+    <form id="intake-form" class="form-card" novalidate>
+      <div class="field">
+        <label for="name">Your first name</label>
+        <input type="text" id="name" name="name" maxlength="100" placeholder="e.g. Maya" autocomplete="given-name" required>
+      </div>
+      <div class="field">
+        <label for="birthdate">Birthdate</label>
+        <input type="date" id="birthdate" name="birthdate" required>
+        <div class="hint">Used for a touch of cosmic flavor in your reading. That's all.</div>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" maxlength="200" placeholder="you@example.com" autocomplete="email" required>
+        <div class="hint">Checkout receipt, your private gallery link, and the "it's ready" email all come here.</div>
+      </div>
+      <div class="field">
+        <label for="personality">About you — 3 to 4 lines</label>
+        <textarea id="personality" name="personality_goals" maxlength="1000" placeholder="Who are you when no one's watching? What drives you? What are you working toward — or quietly dreaming about?" required></textarea>
+        <div class="hint">Personality, passions, goals, quirks — write like you're telling a friend.</div>
+      </div>
+      <div class="field">
+        <label for="selfie">Selfie <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+        <input type="file" id="selfie" name="selfie" accept="image/jpeg,image/png,image/webp">
+        <div class="hint">Style reference only — hair, general vibe. The sketch is an <strong>artistic interpretation</strong>; we never promise likeness. Max ~1MB. Used once, then deleted.</div>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="continue-btn">Continue — $37 one-time</button>
+      <div class="status" id="intake-status"></div>
+    </form>
+
+    <div id="checkout-box" class="form-card" hidden>
+      <h3>You're one tap away ✦</h3>
+      <p class="lede">Your details are saved. Complete secure checkout and your sketch + reading start generating immediately.</p>
+      <button class="btn btn-gold btn-block" id="pay-btn">Pay $37 securely</button>
+      <div class="status" id="pay-status"></div>
+      <p class="lede" style="font-size:13px;margin-top:12px">Secure Stripe checkout · 7-day redo-or-refund · For entertainment purposes only</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
+    <span><a href="index.html">Home</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var form = document.getElementById("intake-form");
+  var status = document.getElementById("intake-status");
+  var payStatus = document.getElementById("pay-status");
+  var checkoutBox = document.getElementById("checkout-box");
+  var continueBtn = document.getElementById("continue-btn");
+  var payBtn = document.getElementById("pay-btn");
+  var pending = null; // {intake_id, email, name}
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var name = document.getElementById("name").value.trim();
+    var birthdate = document.getElementById("birthdate").value;
+    var email = document.getElementById("email").value.trim();
+    var personality = document.getElementById("personality").value.trim();
+    var selfie = document.getElementById("selfie").files[0] || null;
+
+    if (!name || !birthdate || !email || personality.length < 20) {
+      TrueSketch.setStatus(status, "Please fill in every field — and give us at least a couple of sentences about you.", "err");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      TrueSketch.setStatus(status, "That email doesn't look right — mind checking it?", "err");
+      return;
+    }
+    if (selfie && selfie.size > 1024 * 1024) {
+      TrueSketch.setStatus(status, "Selfie is over ~1MB — a smaller photo works fine.", "err");
+      return;
+    }
+
+    continueBtn.disabled = true;
+    TrueSketch.setStatus(status, "Saving your details…", "busy");
+    try {
+      var fd = new FormData();
+      fd.append("name", name);
+      fd.append("birthdate", birthdate);
+      fd.append("email", email);
+      fd.append("personality_goals", personality);
+      if (selfie) fd.append("selfie", selfie, selfie.name);
+      var res = await fetch("/api/intake", { method: "POST", body: fd });
+      var data = null;
+      try { data = await res.json(); } catch (err) {}
+      if (!res.ok || !data || !data.ok) {
+        throw new Error((data && data.error) || ("intake_failed_" + res.status));
+      }
+      pending = { intake_id: data.intake_id, email: email, name: name };
+      form.hidden = true;
+      checkoutBox.hidden = false;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (err) {
+      TrueSketch.setStatus(status, "Hmm — " + err.message + ". Please try again.", "err");
+      continueBtn.disabled = false;
+    }
+  });
+
+  payBtn.addEventListener("click", async function () {
+    if (!pending) return;
+    payBtn.disabled = true;
+    TrueSketch.setStatus(payStatus, "Opening secure checkout…", "busy");
+    try {
+      var data = await TrueSketch.startCheckout({
+        email: pending.email,
+        intake_id: pending.intake_id,
+        name: pending.name,
+      });
+      window.location.href = data.checkout_url;
+    } catch (err) {
+      TrueSketch.setStatus(payStatus, "Checkout hiccup: " + err.message + ". Please try again.", "err");
+      payBtn.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueSketch — Your private gallery</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="TrueSketch">True<span>Sketch</span></a>
+    <nav class="nav">
+      <a href="mailto:team@mehyar.us">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="centered" id="loading">
+    <div class="spinner"></div>
+    <p class="lede">Opening your gallery…</p>
+  </section>
+
+  <section id="gallery" hidden>
+    <p class="eyebrow">Your TrueSketch</p>
+    <h1 id="g-title">Your portrait</h1>
+    <div class="sketch-frame">
+      <img id="g-sketch" alt="Your personalized TrueSketch portrait">
+    </div>
+    <div class="dl-row">
+      <a class="btn btn-gold" id="g-download" href="#" download="truesketch-portrait.jpg">Download sketch</a>
+      <button class="btn btn-ghost" id="g-print">Print / save PDF</button>
+    </div>
+  </section>
+
+  <section id="reading-sec" hidden>
+    <h2>Your reading</h2>
+    <div class="reading" id="g-reading"></div>
+  </section>
+
+  <section id="gallery-foot" hidden>
+    <div class="disclaimer" style="margin-top:32px">
+      <strong>For entertainment purposes only.</strong> Your sketch is an artistic interpretation, not a likeness. Your reading was written by AI for fun and self-reflection — not psychic guidance or professional advice.
+    </div>
+  </section>
+
+  <section id="not-found" hidden>
+    <h1>Hmm, no gallery here.</h1>
+    <p class="lede">That link didn't match a finished order. Check your email for your private gallery link, or <a href="success.html">look up your order</a> with your token.</p>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
+    <span><a href="index.html">Home</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var token = TrueSketch.getQueryParam("token");
+  var loading = document.getElementById("loading");
+  var gallery = document.getElementById("gallery");
+  var readingSec = document.getElementById("reading-sec");
+  var foot = document.getElementById("gallery-foot");
+  var notFound = document.getElementById("not-found");
+
+  if (!token) { loading.hidden = true; notFound.hidden = false; return; }
+
+  fetch("/api/gallery?token=" + encodeURIComponent(token), { cache: "no-store" })
+    .then(function (res) {
+      if (!res.ok) throw new Error("not_found");
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data || !data.ok) throw new Error("not_found");
+      loading.hidden = true;
+      gallery.hidden = false;
+      readingSec.hidden = false;
+      foot.hidden = false;
+      document.getElementById("g-title").textContent = data.name ? data.name + " — your portrait" : "Your portrait";
+      var sketchUrl = "/api/sketch?token=" + encodeURIComponent(token);
+      var img = document.getElementById("g-sketch");
+      img.src = sketchUrl;
+      img.alt = "Personalized TrueSketch portrait" + (data.name ? " for " + data.name : "");
+      document.getElementById("g-download").href = sketchUrl;
+      document.getElementById("g-reading").innerHTML = data.reading_html || "";
+    })
+    .catch(function () {
+      loading.hidden = true;
+      notFound.hidden = false;
+    });
+
+  document.getElementById("g-print").addEventListener("click", function () { window.print(); });
+})();
+</script>
+
+</body>
+</html>
