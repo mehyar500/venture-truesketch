@@ -29,7 +29,7 @@ export const MODELS = {
   text: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", // strong writing/reasoning
   textFast: "@cf/meta/llama-3.2-3b-instruct", // cheap, high-volume
   vision: "@cf/meta/llama-3.2-11b-vision-instruct", // ONE image per call
-  image: "@cf/stabilityai/stable-diffusion-xl-base-1.0", // SDXL base; lightning returned empty (2026-09-16)
+  image: "@cf/black-forest-labs/flux-1-schnell", // returns {image: base64}; SDXL variants return empty via binding (2026-09-16)
 };
 
 /**
@@ -51,14 +51,14 @@ export async function runText(env, model, messages, opts = {}) {
 export async function runImage(env, prompt, opts = {}) {
   const {
     model = MODELS.image,
-    steps = 8, // SDXL-lightning sweet spot
+    steps = 4, // schnell is distilled; 4 steps is its sweet spot
   } = opts;
   // NOTE: width/height are NOT sent. The Workers AI flux-1-schnell endpoint
   // rejects them ("unevaluated properties '/width, /height' not allowed",
   // proven 2026-09-15) and always returns 1024x1024. Callers that need a
   // non-square deliverable must crop/letterbox client-side; actual dims are
   // sniffed from the bytes and returned so manifests never lie.
-  const out = await env.AI.run(model, { prompt, num_steps: steps });
+  const out = await env.AI.run(model, { prompt, steps });
   const base64 = out && out.image;
   if (!base64) throw new Error("image_model_empty_response");
   const bytes = b64ToBytes(base64);
