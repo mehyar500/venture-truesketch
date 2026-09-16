@@ -428,6 +428,6 @@ export async function onRequestPost({ request, env }) {
   } catch (e) {
     const msg = String((e && e.message) || e || "unknown").slice(0, 300);
     console.error("truesketch/generate failed", msg);
-    return fail("generate_failed", { detail: msg });
+    return fail("generate_failed", 200, { detail: msg });
   }
 }
