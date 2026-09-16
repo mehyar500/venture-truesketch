@@ -196,15 +196,16 @@ async function describeSelfie(env, r2, selfieKey) {
   }
 }
 
-function buildFluxPrompt({ personality_goals, selfieDesc }) {
-  // "Illustration" avoids Flux's sketch->signature prior. Name/birthdate excluded
-  // (Flux renders them as visible text). Minimal to reduce hallucination triggers.
-  const mood = (personality_goals || "").slice(0, 200).replace(/[\r\n]+/g, " ");
-  let p = "Digital portrait illustration, painterly style, head and shoulders, " +
-    "expressive, artistic, rich colors. ";
+function buildFluxPrompt({ selfieDesc }) {
+  // Style-only prompt. Personality text is EXCLUDED — raw words ("builder")
+  // become literal objects (hard hats) or rendered text. Personalization lives
+  // in the reading (text); the sketch is a beautiful mystical portrait.
+  // "Pencil sketch" (not "illustration") avoids the TM-watermark prior.
+  let p = "Mystical pencil sketch portrait, graphite on deep indigo paper, " +
+    "expressive linework, soft shading, head and shoulders, artistic, elegant. ";
   if (selfieDesc) p += "Style inspiration: " + selfieDesc.slice(0, 150) + ". ";
-  if (mood) p += "Mood: " + mood + ". ";
-  p += "No text, no words, no letters, no numbers, no signature, no watermark, no captions.";
+  p += "No text, no words, no letters, no numbers, no signature, no initials, " +
+    "no watermark, no trademark symbols, no logos, no captions.";
   return p;
 }
 
