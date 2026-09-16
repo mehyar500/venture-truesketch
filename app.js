@@ -9,7 +9,8 @@ async function startCheckout({ email, intake_id, name, test }) {
     product_id: PRODUCT_ID,
     email,
     params: { intake_id, name: (name || "").slice(0, 100) },
-    success_url: "https://truesketch.mehyar.us/success.html",
+    // success_url intentionally omitted: the server builds it from the
+    // billing_products.success_url_template, which embeds ?token={access_token}.
     cancel_url: "https://truesketch.mehyar.us/#pricing",
   };
   if (test === true) body.test = true;
