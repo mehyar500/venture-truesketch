@@ -29,7 +29,7 @@ export const MODELS = {
   text: "@cf/meta/llama-3.3-70b-instruct-fp8-fast", // strong writing/reasoning
   textFast: "@cf/meta/llama-3.2-3b-instruct", // cheap, high-volume
   vision: "@cf/meta/llama-3.2-11b-vision-instruct", // ONE image per call
-  image: "@cf/bytedance/stable-diffusion-xl-lightning", // returns {image: base64}; Flux hallucinates text 100% of runs (2026-09-16)
+  image: "@cf/stabilityai/stable-diffusion-xl-base-1.0", // SDXL base; lightning returned empty (2026-09-16)
 };
 
 /**
