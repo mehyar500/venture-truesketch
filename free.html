@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueSketch — Get your free sketch</title>
+<meta name="description" content="One free AI portrait sketch + reading excerpt. No payment, no account — just your story.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+<style>
+.watermarked { position: relative; overflow: hidden; }
+.watermarked .wm-tilt {
+  position: absolute; inset: -20%;
+  display: flex; flex-wrap: wrap; align-content: space-around; justify-content: center;
+  gap: 26px 18px; transform: rotate(-24deg); pointer-events: none;
+}
+.watermarked .wm-tilt span {
+  font-weight: 800; font-size: 26px; letter-spacing: 6px; text-transform: uppercase;
+  color: rgba(244,240,250,.34); text-shadow: 0 1px 8px rgba(0,0,0,.55);
+  border: 2px solid rgba(244,240,250,.30); border-radius: 8px; padding: 4px 14px;
+  white-space: nowrap;
+}
+.optin-row { display: flex; gap: 10px; align-items: flex-start; margin-top: 4px; }
+.optin-row input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--gold); }
+.optin-row label { font-size: 14px; color: var(--muted); font-weight: 400; }
+.optin-row label strong { color: var(--text); }
+#email-field { display: none; }
+#email-field.show { display: block; animation: fade .2s ease; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.tease-lock { color: var(--muted); font-style: italic; }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="TrueSketch">True<span>Sketch</span></a>
+    <nav class="nav">
+      <a href="teaser.html">Free preview</a>
+      <a href="intake.html">Get yours — $37</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Free · no payment · no account</p>
+    <h1>Get your free sketch.</h1>
+    <p class="lede">Tell us a little about yourself. Our AI draws a pencil sketch in our mystical style and writes the opening of your reading — right here, free. One per person.</p>
+  </section>
+
+  <!-- ── the form ─────────────────────────────────────────── -->
+  <section id="free-form-sec">
+    <div class="form-card">
+      <form id="free-form" novalidate>
+        <div class="field">
+          <label for="f-name">Your name</label>
+          <input type="text" id="f-name" name="name" maxlength="80" autocomplete="given-name" placeholder="e.g. Maya">
+        </div>
+        <div class="field">
+          <label for="f-birth">Birthdate <span class="hint">— optional, sharpens your reading</span></label>
+          <input type="date" id="f-birth" name="birthdate" max="2026-09-15">
+        </div>
+        <div class="field">
+          <label for="f-personality">About you <span class="hint">— a few lines on your personality, your patterns, what you're working toward</span></label>
+          <textarea id="f-personality" name="personality" maxlength="600" placeholder="e.g. I'm the calm one in a loud family. I overthink at night but decide fast in a crisis. This year I'm building my own thing."></textarea>
+        </div>
+        <div class="field">
+          <div class="optin-row">
+            <input type="checkbox" id="f-optin">
+            <label for="f-optin"><strong>Email me my free sketch</strong> + occasional reading tips. <a href="privacy.html">Privacy</a> · <a href="unsubscribe.html">unsubscribe anytime</a>.</label>
+          </div>
+          <div id="email-field" style="margin-top:12px">
+            <input type="email" id="f-email" name="email" autocomplete="email" placeholder="you@example.com">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit" id="free-submit">Draw my free sketch ✦</button>
+        <div class="status" id="free-status" role="status"></div>
+      </form>
+      <p class="hero-proof" style="margin-top:14px">One free sketch per person · <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a></p>
+    </div>
+  </section>
+
+  <!-- ── generating state ─────────────────────────────────── -->
+  <section id="free-loading" class="centered hidden">
+    <div class="spinner"></div>
+    <h2>The artist is working…</h2>
+    <p class="lede">Sketching your portrait and writing the opening of your reading. About 30–60 seconds.</p>
+  </section>
+
+  <!-- ── result ───────────────────────────────────────────── -->
+  <section id="free-result" class="hidden">
+    <p class="eyebrow">Your free sketch</p>
+    <h2 id="free-title">This is how the AI sees you.</h2>
+    <div class="teaser-frame" style="margin-top:18px">
+      <div class="watermark-band">Sample — unlock the full portrait for $37</div>
+      <div class="watermarked sketch-frame">
+        <img id="free-img" alt="Your free TrueSketch portrait sketch">
+        <div class="wm-tilt" aria-hidden="true">
+          <span>Sample</span><span>Sample</span><span>Sample</span>
+          <span>Sample</span><span>Sample</span><span>Sample</span>
+          <span>Sample</span><span>Sample</span><span>Sample</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:28px">
+      <p class="eyebrow">The opening of your reading</p>
+      <div class="teaser-frame">
+        <div class="teaser-excerpt" id="free-reading"></div>
+      </div>
+      <p class="tease-lock" style="margin-top:12px">✦ The full reading continues for two pages — your patterns, your momentum, and one gentle nudge about what's ahead.</p>
+    </div>
+
+    <div class="price-card" style="margin-top:28px">
+      <div class="save">Your free sketch is just the beginning</div>
+      <h3>Get the full portrait + 2-page reading</h3>
+      <div class="price">$37 <small>one-time</small></div>
+      <ul class="includes">
+        <li>Print-ready sketch — no watermark</li>
+        <li>Full two-page reading written about you</li>
+        <li>Private gallery + downloads, forever</li>
+        <li>7-day redo-or-refund</li>
+      </ul>
+      <a class="btn btn-gold btn-block" href="intake.html">Unlock mine — $37</a>
+    </div>
+  </section>
+
+  <!-- ── already-used state ───────────────────────────────── -->
+  <section id="free-blocked" class="centered hidden">
+    <p class="eyebrow">One per person</p>
+    <h2>You've already used your free sketch.</h2>
+    <p class="lede">The free tier is one sketch per person — but your story deserves the full treatment.</p>
+    <div class="price-card" style="text-align:center">
+      <div class="save">Next step</div>
+      <h3>The full TrueSketch Reading</h3>
+      <div class="price">$37 <small>one-time</small></div>
+      <p>Unwatermarked print-ready sketch + your complete two-page reading, delivered in minutes.</p>
+      <a class="btn btn-gold btn-block" href="intake.html">Get your full portrait + reading — $37</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="disclaimer">
+      <strong>For entertainment purposes only.</strong> TrueSketch creates artistic portraits and AI-written readings for fun and self-reflection. Nothing here is psychic guidance, professional advice, or a prediction of your future. The sketch is an artistic interpretation and is not guaranteed to resemble you.
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="unsubscribe.html">Unsubscribe</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var form = document.getElementById("free-form");
+  var status = document.getElementById("free-status");
+  var optin = document.getElementById("f-optin");
+  var emailField = document.getElementById("email-field");
+  var emailInput = document.getElementById("f-email");
+  var submitBtn = document.getElementById("free-submit");
+
+  optin.addEventListener("change", function () {
+    emailField.classList.toggle("show", optin.checked);
+  });
+
+  function show(id) {
+    ["free-form-sec", "free-loading", "free-result", "free-blocked"].forEach(function (s) {
+      document.getElementById(s).classList.toggle("hidden", s !== id);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function esc(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var name = document.getElementById("f-name").value.trim();
+    var birthdate = document.getElementById("f-birth").value;
+    var personality = document.getElementById("f-personality").value.trim();
+    var wantEmail = optin.checked;
+    var email = emailInput.value.trim();
+
+    if (!name) { status.className = "status err"; status.textContent = "Tell us your name first."; return; }
+    if (personality.length < 20) { status.className = "status err"; status.textContent = "Give us a couple of sentences about you (20+ characters)."; return; }
+    if (wantEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      status.className = "status err"; status.textContent = "That email doesn't look right."; return;
+    }
+
+    submitBtn.disabled = true;
+    status.className = "status busy";
+    status.textContent = "Sketching…";
+    show("free-loading");
+
+    try {
+      var res = await fetch("/api/free-generate", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: name, birthdate: birthdate, personality: personality }),
+      });
+      var data = await res.json().catch(function () { return null; });
+
+      if (res.status === 403 && data && data.blocked) {
+        show("free-blocked");
+        return;
+      }
+      if (!res.ok || !data || !data.ok) {
+        throw new Error((data && data.error) || "generation_failed");
+      }
+
+      if (wantEmail) {
+        fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email: email, source: "free-tier" }),
+        }).catch(function () {});
+      }
+
+      document.getElementById("free-title").textContent = data.title || "This is how the AI sees you.";
+      document.getElementById("free-img").src = data.sketch;
+      var rh = data.paragraphs.map(function (p) { return "<p>" + esc(p) + "</p>"; }).join("");
+      rh += '<div class="byline">From your free reading · unlock the full 2 pages for $37</div>';
+      document.getElementById("free-reading").innerHTML = rh;
+      show("free-result");
+    } catch (err) {
+      show("free-form-sec");
+      status.className = "status err";
+      status.textContent = "Something went wrong sketching — please try again in a moment.";
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
