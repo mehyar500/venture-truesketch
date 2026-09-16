@@ -108,8 +108,8 @@ function parseQCVerdict(raw) {
     let hasText = d.has_text === true;
     const visText = String(d.visible_text || "").trim();
     // Guard against self-contradictory model output (observed: has_text=true
-    // with visible_text="No text visible"). If the model cannot point to any
-    // actual transcribable characters, there is nothing to reject.
+    // with visible_text="No text visible" or "None"). If the model cannot point
+    // to any actual transcribable characters, there is nothing to reject.
     if (hasText && (!visText || /^(no|none|n\/a|nothing)\b/i.test(visText))) {
       hasText = false;
     }
