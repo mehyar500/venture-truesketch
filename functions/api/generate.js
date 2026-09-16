@@ -197,16 +197,14 @@ async function describeSelfie(env, r2, selfieKey) {
 }
 
 function buildFluxPrompt({ personality_goals, selfieDesc }) {
-  // MINIMAL prompt: Flux-1-schnell hallucinates text ("Melody", "Maya Test", "Wadja.")
-  // on elaborate prompts. Testing whether simplicity yields text-free portraits.
-  // Name/birthdate excluded (Flux renders them as visible text).
+  // "Illustration" avoids Flux's sketch->signature prior. Name/birthdate excluded
+  // (Flux renders them as visible text). Minimal to reduce hallucination triggers.
   const mood = (personality_goals || "").slice(0, 200).replace(/[\r\n]+/g, " ");
-  let p = "Pencil sketch portrait, graphite drawing on textured paper, " +
-    "head and shoulders, expressive linework, soft shading, artistic. ";
+  let p = "Digital portrait illustration, painterly style, head and shoulders, " +
+    "expressive, artistic, rich colors. ";
   if (selfieDesc) p += "Style inspiration: " + selfieDesc.slice(0, 150) + ". ";
   if (mood) p += "Mood: " + mood + ". ";
-  p += "Absolutely no text, no words, no letters, no numbers, no signature, " +
-    "no watermark, no captions anywhere in the image.";
+  p += "No text, no words, no letters, no numbers, no signature, no watermark, no captions.";
   return p;
 }
 
