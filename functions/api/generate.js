@@ -286,9 +286,11 @@ export async function onRequestPost({ request, env }) {
       }
     } catch {}
   };
-  const fail = async (error, httpStatus = 200) => {
+  const fail = async (error, httpStatus = 200, details = null) => {
     await markFailed();
-    return json({ ok: false, error, status: "failed" }, httpStatus);
+    const out = { ok: false, error, status: "failed" };
+    if (details && typeof details === "object") out.details = details;
+    return json(out, httpStatus);
   };
 
   try {
@@ -369,7 +371,15 @@ export async function onRequestPost({ request, env }) {
     const art = await generateSketch(env, fluxPrompt, `payment:${payment_id}`);
     if (!art.ok) {
       console.error("truesketch/sketch QC exhausted", art.qc && art.qc.notes);
-      return fail("image_qc_failed");
+      try {
+        if (r2 && art.base64) {
+          const dbgBytes = Uint8Array.from(atob(art.base64), (c) => c.charCodeAt(0));
+          await r2.put(`truesketch/debug/qc-fail-${payment_id}.jpg`, dbgBytes, {
+            httpMetadata: { contentType: "image/jpeg" },
+          });
+        }
+      } catch {}
+      return fail("image_qc_failed", 200, { qc: art.qc || null, attempts: art.attempts || 0 });
     }
     const sketchBytes = Uint8Array.from(atob(art.base64), (c) => c.charCodeAt(0));
     const sketchKey = `truesketch/${access_token}/sketch.jpg`;
