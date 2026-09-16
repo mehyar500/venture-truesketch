@@ -89,6 +89,9 @@
   var payBtn = document.getElementById("pay-btn");
   var pending = null; // {intake_id, email, name}
 
+  // Birthdate can't be in the future — set the max to today at load time.
+  document.getElementById("birthdate").max = new Date().toISOString().slice(0, 10);
+
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
     var name = document.getElementById("name").value.trim();

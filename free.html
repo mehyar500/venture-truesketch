@@ -11,6 +11,7 @@
 <link rel="stylesheet" href="styles.css">
 <style>
 .watermarked { position: relative; overflow: hidden; }
+.watermarked img { width: 100%; display: block; aspect-ratio: 1 / 1; object-fit: cover; }
 .watermarked .wm-tilt {
   position: absolute; inset: -20%;
   display: flex; flex-wrap: wrap; align-content: space-around; justify-content: center;
@@ -62,7 +63,7 @@
         </div>
         <div class="field">
           <label for="f-birth">Birthdate <span class="hint">— optional, sharpens your reading</span></label>
-          <input type="date" id="f-birth" name="birthdate" max="2026-09-15">
+          <input type="date" id="f-birth" name="birthdate">
         </div>
         <div class="field">
           <label for="f-personality">About you <span class="hint">— a few lines on your personality, your patterns, what you're working toward</span></label>
@@ -171,6 +172,9 @@
   optin.addEventListener("change", function () {
     emailField.classList.toggle("show", optin.checked);
   });
+  // Birthdate can't be in the future — set the max to today at load time so
+  // the cap never goes stale.
+  document.getElementById("f-birth").max = new Date().toISOString().slice(0, 10);
 
   function show(id) {
     ["free-form-sec", "free-loading", "free-result", "free-blocked"].forEach(function (s) {
