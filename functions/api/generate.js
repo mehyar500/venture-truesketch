@@ -83,6 +83,8 @@ async function bearerMatches(auth, secret) {
     return d === 0;
   }
 }
+
+function orderPayload(env, order) {
   const urls = orderUrls(env, order.access_token);
   return {
     ok: true,
