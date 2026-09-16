@@ -3,6 +3,11 @@
 // The token is the capability: verified against truesketch_orders first.
 
 export async function onRequestGet({ request, env }) {
+  const forbidden = () =>
+    new Response(JSON.stringify({ ok: false, error: "bad_token" }), {
+      status: 403,
+      headers: { "content-type": "application/json", "cache-control": "no-store" },
+    });
   const notFound = () =>
     new Response(JSON.stringify({ ok: false, error: "not_found" }), {
       status: 404,
@@ -13,7 +18,7 @@ export async function onRequestGet({ request, env }) {
     const r2 = env.TRUESKETCH_R2;
     if (!db || !r2) return notFound();
     const token = new URL(request.url).searchParams.get("token") || "";
-    if (token.length < 16) return notFound();
+    if (token.length < 16) return forbidden();
 
     const order = await db
       .prepare("SELECT sketch_r2_key FROM truesketch_orders WHERE access_token=? AND status='ready'")

@@ -66,7 +66,23 @@ function orderUrls(env, token) {
   };
 }
 
-function orderPayload(env, order) {
+// ── auth: timing-safe bearer compare ───────────────────────────────────────
+// Plain `!==` leaks secret length/order through timing; the fixed-length
+// random generate secret deserves a constant-time check.
+async function bearerMatches(auth, secret) {
+  const prefix = "Bearer ";
+  if (typeof auth !== "string" || !auth.startsWith(prefix)) return false;
+  const a = new TextEncoder().encode(auth.slice(prefix.length));
+  const b = new TextEncoder().encode(secret);
+  if (a.length !== b.length) return false;
+  try {
+    return crypto.subtle.timingSafeEqual(a, b);
+  } catch {
+    let d = 0;
+    for (let i = 0; i < a.length; i++) d |= a[i] ^ b[i];
+    return d === 0;
+  }
+}
   const urls = orderUrls(env, order.access_token);
   return {
     ok: true,
@@ -254,29 +270,37 @@ function renderReadingHtml(reading) {
 // ── main handler ───────────────────────────────────────────────────────────
 
 export async function onRequestPost({ request, env }) {
-  const fail = async (orderId, error, httpStatus = 200) => {
+  // orderId/db are hoisted so the outer catch can mark the row failed — the
+  // webhook always gets HTTP 200 on failure paths, never a 500.
+  let orderId = null;
+  let db = null;
+  const markFailed = async () => {
     try {
-      if (orderId) {
-        await env.LEADS_DB.prepare(`UPDATE truesketch_orders SET status='failed' WHERE id=?`)
+      if (db && orderId) {
+        await db
+          .prepare(`UPDATE truesketch_orders SET status='failed' WHERE id=?`)
           .bind(orderId)
           .run();
       }
     } catch {}
+  };
+  const fail = async (error, httpStatus = 200) => {
+    await markFailed();
     return json({ ok: false, error, status: "failed" }, httpStatus);
   };
 
   try {
-    // ── auth ──
+    // ── auth (timing-safe bearer compare) ──
     const secret = env.TRUESKETCH_GENERATE_SECRET;
     const auth = request.headers.get("authorization") || "";
-    if (!secret || auth !== `Bearer ${secret}`) {
+    if (!secret || !(await bearerMatches(auth, secret))) {
       return json({ ok: false, error: "unauthorized" }, 401);
     }
 
-    const db = env.LEADS_DB;
+    db = env.LEADS_DB;
     const r2 = env.TRUESKETCH_R2;
-    if (!db) return json({ ok: false, error: "no_db" }, 503);
-    if (!r2) return json({ ok: false, error: "no_storage" }, 503);
+    if (!db) return fail("no_db");
+    if (!r2) return fail("no_storage");
 
     let body;
     try {
@@ -296,7 +320,6 @@ export async function onRequestPost({ request, env }) {
 
     // ── idempotency: one row per payment. INSERT first (status=generating);
     // a UNIQUE conflict means this payment was already seen → replay.
-    let orderId = null;
     try {
       const ins = await db
         .prepare(
@@ -344,7 +367,7 @@ export async function onRequestPost({ request, env }) {
     const art = await generateSketch(env, fluxPrompt, `payment:${payment_id}`);
     if (!art.ok) {
       console.error("truesketch/sketch QC exhausted", art.qc && art.qc.notes);
-      return fail(orderId, "image_qc_failed");
+      return fail("image_qc_failed");
     }
     const sketchBytes = Uint8Array.from(atob(art.base64), (c) => c.charCodeAt(0));
     const sketchKey = `truesketch/${access_token}/sketch.jpg`;
@@ -356,7 +379,7 @@ export async function onRequestPost({ request, env }) {
       reading = await generateReading(env, intake);
     } catch (e) {
       console.error("truesketch/reading failed", e && e.message);
-      return fail(orderId, "reading_failed");
+      return fail("reading_failed");
     }
     const readingHtml = renderReadingHtml(reading);
     const displayName = intake.name || email.split("@")[0];
@@ -385,6 +408,6 @@ export async function onRequestPost({ request, env }) {
     });
   } catch (e) {
     console.error("truesketch/generate failed", e && e.message);
-    return json({ ok: false, error: "generate_failed", status: "failed" });
+    return fail("generate_failed");
   }
 }

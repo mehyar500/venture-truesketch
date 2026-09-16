@@ -15,7 +15,7 @@ export async function onRequestGet({ request, env }) {
     const db = env.LEADS_DB;
     if (!db) return json({ ok: false, error: "no_db" }, 503);
     const token = new URL(request.url).searchParams.get("token") || "";
-    if (token.length < 16) return json({ ok: false, error: "bad_token" }, 400);
+    if (token.length < 16) return json({ ok: false, error: "bad_token" }, 403);
 
     const order = await db
       .prepare("SELECT status, name, email, created_at, fulfilled_at FROM truesketch_orders WHERE access_token=?")
