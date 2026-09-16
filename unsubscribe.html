@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TrueSketch — Unsubscribe</title>
+<meta name="description" content="Unsubscribe from TrueSketch emails, instantly.">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#8b5cf6">
+<link rel="icon" href="assets/logo.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="TrueSketch">True<span>Sketch</span></a>
+    <nav class="nav">
+      <a href="free.html">Free sketch</a>
+      <a href="intake.html">Get yours — $37</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">Email preferences</p>
+    <h1>Unsubscribe</h1>
+    <p class="lede">One click and you're out — no questions, no hard feelings. ✦</p>
+  </section>
+
+  <section>
+    <div class="form-card">
+      <form id="unsub-form">
+        <div class="field">
+          <label for="u-email">Email address</label>
+          <input type="email" id="u-email" autocomplete="email" placeholder="you@example.com">
+          <p class="hint">We'll stop sending you everything from TrueSketch — reading tips, updates, all of it.</p>
+        </div>
+        <button class="btn btn-ghost btn-block" type="submit" id="unsub-btn">Unsubscribe me</button>
+        <div class="status" id="unsub-status" role="status"></div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="inner">
+    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
+    <span><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="unsubscribe.html">Unsubscribe</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var form = document.getElementById("unsub-form");
+  var status = document.getElementById("unsub-status");
+  var btn = document.getElementById("unsub-btn");
+
+  // One-click from an email link: /api/unsubscribe?token=… lands back here
+  // with ?done=1 after the API confirms it.
+  var q = new URLSearchParams(location.search);
+  if (q.get("done") === "1") {
+    status.className = "status ok";
+    status.textContent = "You're unsubscribed. We won't email you again. ✦";
+  } else if (q.get("err")) {
+    status.className = "status err";
+    status.textContent = "That link didn't work — enter your email below instead.";
+  }
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var email = document.getElementById("u-email").value.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      status.className = "status err"; status.textContent = "Enter a valid email address."; return;
+    }
+    btn.disabled = true;
+    status.className = "status busy"; status.textContent = "Unsubscribing…";
+    try {
+      var res = await fetch("/api/unsubscribe?email=" + encodeURIComponent(email));
+      if (!res.ok) throw new Error("failed");
+      status.className = "status ok";
+      status.textContent = "You're unsubscribed. We won't email you again. ✦";
+    } catch (err) {
+      status.className = "status err";
+      status.textContent = "Something went wrong — please try again or email team@mehyar.us.";
+    } finally {
+      btn.disabled = false;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
