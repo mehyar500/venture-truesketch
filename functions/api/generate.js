@@ -426,7 +426,8 @@ export async function onRequestPost({ request, env }) {
       sketch_url: urls.sketch_url,
     });
   } catch (e) {
-    console.error("truesketch/generate failed", e && e.message);
-    return fail("generate_failed");
+    const msg = String((e && e.message) || e || "unknown").slice(0, 300);
+    console.error("truesketch/generate failed", msg);
+    return fail("generate_failed", { detail: msg });
   }
 }
