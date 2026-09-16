@@ -53,11 +53,10 @@ export async function runImage(env, prompt, opts = {}) {
     model = MODELS.image,
     steps = 4, // schnell is distilled; 4 steps is its sweet spot
   } = opts;
-  // NOTE: width/height are NOT sent. The Workers AI flux-1-schnell endpoint
-  // rejects them ("unevaluated properties '/width, /height' not allowed",
-  // proven 2026-09-15) and always returns 1024x1024. Callers that need a
-  // non-square deliverable must crop/letterbox client-side; actual dims are
-  // sniffed from the bytes and returned so manifests never lie.
+  // NOTE: width/height are NOT sent (the endpoint rejects unevaluated
+  // properties; proven 2026-09-15). Callers that need a non-square deliverable
+  // must crop/letterbox client-side; actual dims are sniffed from the bytes
+  // and returned so manifests never lie.
   const out = await env.AI.run(model, { prompt, steps });
   const base64 = out && out.image;
   if (!base64) throw new Error("image_model_empty_response");
