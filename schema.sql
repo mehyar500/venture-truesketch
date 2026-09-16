@@ -38,6 +38,21 @@ CREATE TABLE IF NOT EXISTS truesketch_intakes (
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_ts_intakes_id ON truesketch_intakes(intake_id);
 
+-- ── free tier: one real use per IP (claimed before generation) ──────────────
+CREATE TABLE IF NOT EXISTS truesketch_free_uses (
+  ip         TEXT PRIMARY KEY,  -- request.headers cf-connecting-ip
+  used_at    TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  count      INTEGER NOT NULL DEFAULT 1
+);
+
+-- ── brand subscriber list (free-tier opt-in; mirrored to subscribers_global) ─
+CREATE TABLE IF NOT EXISTS truesketch_subscribers (
+  email           TEXT PRIMARY KEY,
+  status          TEXT NOT NULL DEFAULT 'subscribed', -- subscribed|unsubscribed
+  created_at      TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+  unsubscribed_at TEXT
+);
+
 -- ── billing catalog: the one SKU, fulfillment='truesketch' ─────────────────
 INSERT INTO billing_products
   (id, name, brand, price_cents, currency, fulfillment, description,
