@@ -189,19 +189,21 @@ async function describeSelfie(env, r2, selfieKey) {
   }
 }
 
-function buildFluxPrompt({ name, birthdate, personality_goals, selfieDesc }) {
+function buildFluxPrompt({ personality_goals, selfieDesc }) {
+  // NOTE: name/birthdate are deliberately EXCLUDED from the image prompt.
+  // Flux renders proper nouns and dates as visible text (it painted "Maya Test"
+  // across a portrait); the reading (pure text) keeps the personal details.
   const cues = [
     "Mystical hand-drawn pencil and charcoal sketch portrait, expressive graphite linework,",
     "delicate cross-hatching and soft shading, drawn on deep indigo-violet textured paper,",
-    "subtle gold leaf accents and faint celestial line motifs in the background,",
-    "dreamlike, artistic, premium gallery quality, portrait orientation, head and shoulders, " +
+    "subtle gold leaf accents in the background,",
+    "dreamlike, artistic, premium gallery quality, portrait orientation, head and shoulders,",
     "unsigned (no signature, no initials, no text of any kind).",
   ].join(" ");
   const about = [
-    name ? `The subject is called ${name}.` : "",
-    selfieDesc ? `Style cues from their photo (loose inspiration only, NOT a likeness): ${selfieDesc}` : "",
-    personality_goals ? `Their energy, for mood: ${personality_goals.slice(0, 300)}` : "",
-    birthdate ? `Born ${birthdate}.` : "",
+    selfieDesc ? `Style cues (loose inspiration only, NOT a likeness): ${selfieDesc}` : "",
+    personality_goals ? `Mood and energy to convey: ${personality_goals.slice(0, 300)}` : "",
+    "Do NOT render any words from this description as text in the image.",
   ].filter(Boolean).join(" ");
   return `${cues} ${about} Interpret the person artistically — mood and essence, never photorealism.`;
 }
