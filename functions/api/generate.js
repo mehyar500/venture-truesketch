@@ -26,7 +26,9 @@ const MAX_QC_RETRIES = 3;
 
 const ZERO_TEXT_SUFFIX =
   " CRITICAL: the image must contain absolutely no text, letters, numbers, " +
-  "words, labels, signs, or watermark-like shapes anywhere. Pure imagery only.";
+  "words, labels, signs, signatures, initials, monograms, or watermark-like " +
+  "shapes anywhere. The artwork must be completely UNSIGNED — no artist " +
+  "signature in any corner or edge. Pure imagery only.";
 
 const QC_VISION_PROMPT = [
   "You are a quality-control inspector for AI-generated portrait art.",
@@ -192,7 +194,8 @@ function buildFluxPrompt({ name, birthdate, personality_goals, selfieDesc }) {
     "Mystical hand-drawn pencil and charcoal sketch portrait, expressive graphite linework,",
     "delicate cross-hatching and soft shading, drawn on deep indigo-violet textured paper,",
     "subtle gold leaf accents and faint celestial line motifs in the background,",
-    "dreamlike, artistic, premium gallery quality, portrait orientation, head and shoulders.",
+    "dreamlike, artistic, premium gallery quality, portrait orientation, head and shoulders, " +
+    "unsigned (no signature, no initials, no text of any kind).",
   ].join(" ");
   const about = [
     name ? `The subject is called ${name}.` : "",
