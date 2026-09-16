@@ -197,22 +197,17 @@ async function describeSelfie(env, r2, selfieKey) {
 }
 
 function buildFluxPrompt({ personality_goals, selfieDesc }) {
-  // NOTE: name/birthdate are deliberately EXCLUDED from the image prompt.
-  // Flux renders proper nouns and dates as visible text (it painted "Maya Test"
-  // across a portrait); the reading (pure text) keeps the personal details.
-  const cues = [
-    "Mystical hand-drawn pencil and charcoal sketch portrait, expressive graphite linework,",
-    "delicate cross-hatching and soft shading, drawn on deep indigo-violet textured paper,",
-    "subtle gold leaf accents in the background,",
-    "dreamlike, artistic, premium gallery quality, portrait orientation, head and shoulders,",
-    "unsigned (no signature, no initials, no text of any kind).",
-  ].join(" ");
-  const about = [
-    selfieDesc ? `Style cues (loose inspiration only, NOT a likeness): ${selfieDesc}` : "",
-    personality_goals ? `Mood and energy to convey: ${personality_goals.slice(0, 300)}` : "",
-    "Do NOT render any words from this description as text in the image.",
-  ].filter(Boolean).join(" ");
-  return `${cues} ${about} Interpret the person artistically — mood and essence, never photorealism.`;
+  // MINIMAL prompt: Flux-1-schnell hallucinates text ("Melody", "Maya Test", "Wadja.")
+  // on elaborate prompts. Testing whether simplicity yields text-free portraits.
+  // Name/birthdate excluded (Flux renders them as visible text).
+  const mood = (personality_goals || "").slice(0, 200).replace(/[\r\n]+/g, " ");
+  let p = "Pencil sketch portrait, graphite drawing on textured paper, " +
+    "head and shoulders, expressive linework, soft shading, artistic. ";
+  if (selfieDesc) p += "Style inspiration: " + selfieDesc.slice(0, 150) + ". ";
+  if (mood) p += "Mood: " + mood + ". ";
+  p += "Absolutely no text, no words, no letters, no numbers, no signature, " +
+    "no watermark, no captions anywhere in the image.";
+  return p;
 }
 
 const READING_SYSTEM = [
