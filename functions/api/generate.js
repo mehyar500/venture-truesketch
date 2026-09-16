@@ -105,12 +105,19 @@ function orderPayload(env, order) {
 function parseQCVerdict(raw) {
   const d = parseJson(String(raw || ""));
   if (d && typeof d === "object") {
-    const hasText = d.has_text === true;
+    let hasText = d.has_text === true;
+    const visText = String(d.visible_text || "").trim();
+    // Guard against self-contradictory model output (observed: has_text=true
+    // with visible_text="No text visible"). If the model cannot point to any
+    // actual transcribable characters, there is nothing to reject.
+    if (hasText && (!visText || /^(no|none|n\/a|nothing)\b/i.test(visText))) {
+      hasText = false;
+    }
     const isSketch = d.is_portrait_sketch !== false;
     return {
       clean: !hasText && isSketch,
       has_text: hasText,
-      visible_text: String(d.visible_text || "").slice(0, 200),
+      visible_text: visText.slice(0, 200),
       is_portrait_sketch: isSketch,
       notes: String(d.notes || "").slice(0, 200),
     };
