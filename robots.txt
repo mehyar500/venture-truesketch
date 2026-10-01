@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /gallery
+Disallow: /success
+Disallow: /unsubscribe
+
+Sitemap: https://truesketch.mehyar.us/sitemap.xml

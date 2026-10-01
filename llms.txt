@@ -1,0 +1,34 @@
+# TrueSketch
+
+TrueSketch (https://truesketch.mehyar.us) is an AI portrait-sketch + reading
+experience by MehyarSoft LLC. Upload your photo and tell us about yourself;
+our AI draws a pencil sketch in a mystical graphite-on-indigo style and
+writes a two-page personal reading. Delivered to your email and a private
+gallery link in minutes.
+
+## Key pages
+
+- / — landing page, how it works, pricing, FAQ
+- /teaser — free preview: a sample sketch and an excerpt from a sample reading
+- /free — free sketch: a real pencil sketch + the opening of your reading, free
+- /intake — step 1 of 2: the "tell us about you" form before checkout
+- /privacy — privacy policy
+- /terms — terms of service
+
+## Pricing
+
+- TrueSketch Reading: $37 one-time via Stripe through the centralized
+  https://mehyar.us/api/pay/checkout.
+- Free sketch: one per person, no payment, no account.
+
+## API
+
+- Public API: none. Checkout is handled by the shared mehyar.us Stripe flow;
+  gallery delivery is token-gated.
+
+## Compliance
+
+- For entertainment purposes only: the reading is AI-written for fun and
+  self-reflection — not psychic guidance, therapy, or professional advice.
+  No income claims, no testimonials, no earnings guarantees of any kind.
+- The sketch is an artistic interpretation, not a likeness.
