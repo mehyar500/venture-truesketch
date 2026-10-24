@@ -25,6 +25,7 @@
 <meta name="twitter:description" content="TrueSketch turns your photo into a hand-style AI portrait and reads your story back to you. Portrait + reading for $37. Yours to keep, no subscription.">
 <meta name="twitter:image" content="https://truesketch.mehyar.us/assets/truesketch-logo.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"Product","name":"TrueSketch Reading","url":"https://truesketch.mehyar.us/","description":"Personalized AI portrait sketch plus a two-page AI-written reading, delivered to your email and a private gallery link.","brand":{"@type":"Brand","name":"TrueSketch"},"offers":{"@type":"Offer","price":"37.00","priceCurrency":"USD","availability":"https://schema.org/OnlineOnly"}}</script>
+<link rel="stylesheet" href="/styles.css">
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -144,10 +145,52 @@
 
 <footer>
   <div class="inner">
-    <span>© 2026 TrueSketch · truesketch.mehyar.us</span>
-    <span><a href="teaser.html">See samples</a> · <a href="free.html">Free sketch</a> · <a href="intake.html">Get yours</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="unsubscribe.html">Unsubscribe</a> · <a href="mailto:team@mehyar.us">Contact</a></span>
+    <span>© 2026 Mehyar Soft LLC · TrueSketch</span>
+    <span><a href="teaser.html">See samples</a> · <a href="free.html">Free sketch</a> · <a href="intake.html">Get yours</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a> · <a href="unsubscribe.html">Unsubscribe</a> · <a href="mailto:info@mehyar.us">info@mehyar.us</a></span>
+  </div>
+  <div class="inner legal-links">
+    <span>Mehyar Soft LLC — <a href="https://mehyar.us/privacy-policy/">Privacy Policy</a> · <a href="https://mehyar.us/terms/">Terms</a> · <a href="https://mehyar.us/data-deletion/">Data Deletion</a></span>
   </div>
 </footer>
+
+<!-- MehyarSoft cookie consent v1 — vanilla JS, no dependencies (~2.2KB).
+     Set MS_COOKIE_PRIVACY_URL per site before including. Stores choice in
+     localStorage as ms_cookie_consent=accepted|declined. Best-effort
+     dataLayer push for future GTM Consent Mode gating; does not gate
+     hardcoded GTM (follow-up). Never throws: wrapped in try/catch. -->
+<script>
+(function(){try{
+var KEY='ms_cookie_consent',PRIV=('https://mehyar.us/privacy-policy/'||'/privacy-policy/');
+var v=null;try{v=localStorage.getItem(KEY);}catch(e){}
+if(v==='accepted'||v==='declined')return;
+function set(c){try{localStorage.setItem(KEY,c);}catch(e){}
+ try{window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:'cookie_consent',consent:c});}catch(e){}}
+var b=document.createElement('div');
+b.id='ms-cookie-bar';
+b.setAttribute('role','dialog');b.setAttribute('aria-label','Cookie consent');
+b.innerHTML='<style>'
++'#ms-cookie-bar{position:fixed;left:12px;right:12px;bottom:12px;z-index:2147483000;'
++'background:#111827;color:#f9fafb;border:1px solid #374151;border-radius:12px;'
++'padding:12px 14px;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;'
++'box-shadow:0 8px 30px rgba(0,0,0,.35);display:flex;gap:10px;align-items:center;flex-wrap:wrap}'
++'#ms-cookie-bar p{margin:0;flex:1 1 220px;font-size:13px}'
++'#ms-cookie-bar a{color:#93c5fd;text-decoration:underline}'
++'#ms-cookie-bar button{border:0;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}'
++'#ms-ok{background:#22c55e;color:#052e12}#ms-no{background:#374151;color:#f9fafb}'
++'@media(min-width:640px){#ms-cookie-bar{left:auto;right:20px;bottom:20px;max-width:420px}}'
++'</style>'
++'<p>We use cookies to improve your experience and analyze traffic. '
++'<a href="'+PRIV+'" rel="noopener">Privacy policy</a></p>'
++'<button id="ms-ok" type="button">Accept</button>'
++'<button id="ms-no" type="button">Decline</button>';
+document.body.appendChild(b);
+function done(c){set(c);b.remove();}
+b.querySelector('#ms-ok').addEventListener('click',function(){done('accepted');});
+b.querySelector('#ms-no').addEventListener('click',function(){done('declined');});
+window.msCookieConsent={choice:function(){try{return localStorage.getItem(KEY);}catch(e){return null;}},
+reset:function(){try{localStorage.removeItem(KEY);}catch(e){}location.reload();}};
+}catch(e){}})();
+</script>
 
 </body>
 </html>

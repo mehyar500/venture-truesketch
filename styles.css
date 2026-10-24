@@ -179,3 +179,15 @@ footer .inner { max-width: var(--maxw); margin: 0 auto; padding: 22px 18px; disp
 }
 footer a { color: var(--muted); text-decoration: none; }
 footer a:hover { color: var(--text); }
+
+/* ---------- restored 2026-10-08: page-scoped blocks stripped by the 2026-10-05 head rewrite ---------- */
+.legal { text-align: left; }
+.updated { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+.optin-row { display: flex; gap: 10px; align-items: flex-start; }
+.optin-row input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; flex: none; accent-color: var(--accent); }
+.optin-row label { font-size: 14px; color: var(--muted); }
+.watermarked { position: relative; overflow: hidden; }
+.watermarked img { position: relative; z-index: 1; }
+.wm-tilt { position: absolute; inset: -25%; z-index: 2; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 26px 40px; transform: rotate(-18deg); pointer-events: none; }
+.wm-tilt span { color: rgba(244, 240, 250, .30); font-weight: 800; font-size: 22px; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; }
+.tease-lock { color: var(--gold); font-size: 15px; line-height: 1.55; }
