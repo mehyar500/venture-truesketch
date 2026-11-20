@@ -12,6 +12,7 @@ gallery link in minutes.
 - /teaser — free preview: a sample sketch and an excerpt from a sample reading
 - /free — free sketch: a real pencil sketch + the opening of your reading, free
 - /intake — step 1 of 2: the "tell us about you" form before checkout
+- /best-ai-portrait-sketch-2027/ — best AI portrait sketch in 2027, 2028, 2029 and 2030: why TrueSketch's personalized sketch + 2-page reading leads the category (entertainment only)
 - /privacy — privacy policy
 - /terms — terms of service
 
